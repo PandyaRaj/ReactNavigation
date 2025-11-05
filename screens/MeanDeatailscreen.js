@@ -1,49 +1,63 @@
-import { MEALS } from "../data/dummy-data"; // ✅ correct import name & case
+import { MEALS } from "../data/dummy-data";
 import {
   View,
   Image,
   Text,
   StyleSheet,
   ScrollView,
-  Button,
 } from "react-native";
-import Meal from "../models/meal";
+import { useContext, useLayoutEffect } from "react";
 import MealDetail from "../components/MealDetail";
+import { addFavorite, removeFavorite } from "../store/redux/favorites";
+
 import Subtitle from "../components/MealDetail/Subtitle";
 import List from "../components/MealDetail/List";
-import { use, useLayoutEffect } from "react";
 import IconButton from "../components/IconButton";
 
+import { useSelector , useDispatch} from "react-redux";
 function MeanDeatailscreen({ route, navigation }) {
-  const mealId = route.params.mealid; // ✅ your MealItem passes 'mealid', not 'mealId'
+ // const FavoriteMealCtx = useContext(FavoriteContext);
+  const mealId = route.params.mealid;
   const selectedMeal = MEALS.find((meal) => meal.id === mealId);
+ // const mealIsFavorite = FavoriteMealCtx.ids.includes(mealId);
+  const favoriteMealIds = useSelector((state) => state.favoriteMeals.ids);
+  const mealIsFavorite = favoriteMealIds.includes(mealId);
+  const dispatch = useDispatch();
+  function changeFavoriteStatusHandler() {
+    if (mealIsFavorite) {
+      console.log("Removing...");
+      
+      dispatch(removeFavorite({id:mealId}));
+      //FavoriteMealCtx.removeFavorite(mealId);
+    } else {
+      dispatch(addFavorite({id:mealId}));
+      console.log("Adding...");
+      //FavoriteMealCtx.addFavorite(mealId);
+    }
+  }
+
+  useLayoutEffect(() => {
+    const mealTitle = selectedMeal.title;
+    navigation.setOptions({
+      title: mealTitle,
+      headerRight: () => (
+        <IconButton
+          color="white"
+          icon={mealIsFavorite ? "star" : "star-outline"}
+          onpress={changeFavoriteStatusHandler}
+        />
+      ),
+    });
+  }, [navigation, changeFavoriteStatusHandler, mealIsFavorite]);
 
   if (!selectedMeal) {
-    console.warn("No meal found for id:", mealId);
     return (
       <View style={styles.centered}>
         <Text>No meal found!</Text>
       </View>
     );
   }
-  useLayoutEffect(() => {
-    const mealTitle = selectedMeal.title;
 
-    function headerButtonPressHandler() {
-      console.log("Pressed!");
-    }
-
-    navigation.setOptions({
-      title: mealTitle,
-      headerRight: () => (
-        <IconButton
-          color="white"
-          icon="star"
-          onpress={headerButtonPressHandler}
-        ></IconButton>
-      ),
-    });
-  }, [navigation, selectedMeal]);
   return (
     <ScrollView style={styles.root}>
       <Image source={{ uri: selectedMeal.imageUrl }} style={styles.image} />
@@ -57,10 +71,9 @@ function MeanDeatailscreen({ route, navigation }) {
       <View style={{ alignItems: "center" }}>
         <View style={styles.ListContainer}>
           <Subtitle>Ingredients</Subtitle>
-          <List data={selectedMeal.ingredients} />
+          <List data={selectedMeal.ingredients} type={'ingredeients'}/>
           <Subtitle>Steps</Subtitle>
-
-          <List data={selectedMeal.steps} />
+          <List data={selectedMeal.steps} type={'steps'}/>
         </View>
       </View>
     </ScrollView>

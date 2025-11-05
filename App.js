@@ -8,6 +8,9 @@ import MeanDeatailscreen from "./screens/MeanDeatailscreen";
 import { Text } from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import FavoriteScreen from "./screens/FavoriteScreen";
+//import FavoriteContextProvider from "./store/context/favorite-context";
+import store from "./store/redux/store";
+import { Provider } from "react-redux";
 const Stack = createNativeStackNavigator(); // ✅ notice the parentheses!
 const Drawer = createDrawerNavigator();
 function DrawerNavigator() {
@@ -63,6 +66,8 @@ export default function App() {
   return (
     <>
       <StatusBar style="auto" />
+      {/* <FavoriteContextProvider> */}
+      <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
@@ -97,7 +102,8 @@ export default function App() {
             component={MeanDeatailscreen}
           ></Stack.Screen>
         </Stack.Navigator>
-      </NavigationContainer>
+      </NavigationContainer></Provider>
+      {/* </FavoriteContextProvider> */}
     </>
   );
 }

@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet } from "react-native";
 
-function List({ data }) {
+function List({ data,type }) {
+  console.log(data)
   return (
     <View style={styles.ListItem}>
       {data.map((dataItem) => (
-        <Text style={styles.itemColor} key={dataItem}>
+        <Text style={styles.itemColor} key={`${dataItem}-${type}`}>
           {dataItem}
         </Text>
       ))}
